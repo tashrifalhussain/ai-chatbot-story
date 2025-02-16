@@ -1,0 +1,613 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Story Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.3/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(-225deg, #E3FDF5 0%, #FFE6FA 100%);
+        }
+
+        h1 {
+            text-transform: uppercase;
+            letter-spacing: .15em;
+        }
+
+        button {
+            transition: all .2s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        #output {
+            background-color: white;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            border-radius: 0.25rem;
+        }
+
+        .child-container {
+            background-color: white;
+            padding: 1rem;
+            border-radius: 0.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .quantity-input {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .quantity-input input {
+            text-align: center;
+            width: 50px;
+            height: 2rem;
+        }
+
+        .quantity-input button {
+            width: 2rem;
+            height: 2rem;
+        }
+
+        #buttons {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 2rem;
+        }
+
+        @media screen and (max-width: 640px) {
+            #buttons {
+                flex-wrap: wrap;
+            }
+            #buttons button {
+                flex-grow: 1;
+                margin-bottom: 1rem;
+            }
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #09f;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .img-icon-wrapper {
+          position: relative;
+          display: inline-block;
+          width: 10px;
+          height: 10px;
+        }
+
+        .paragraph-image-icon {
+          position: absolute;
+          top: 0;
+          right: 0;
+          cursor: pointer;
+          padding: 2px;
+          border-radius: 50%;
+        }
+
+        .img-icon-wrapper:hover .paragraph-image-icon {
+          display: block;
+        }
+      .paragraph-container {
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+/* Add styles for the generate button icon */
+.generate-image-icon {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    cursor: pointer;
+    font-size: 20px;
+    color: #3498db;
+}
+      /* Add spacing below title */
+#title-output {
+    margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Add spacing below the paragraph for the image */
+.paragraph-container {
+    margin-bottom: 20px;
+}
+
+/* Move icon closer to the bottom right corner */
+.generate-image-icon {
+    display: block;
+    text-align: right;
+}
+
+    </style>
+</head>
+
+<body class="bg-gray-100 font-sans">
+    <div class="container mx-auto p-4">
+        <h1 class="text-4xl font-bold mb-4 text-center">Story Generator</h1>
+        <form id="story-form" class="space-y-4 mx-auto max-w-md">
+            <div>
+                <select id="story-category" class="font-bold text-center mt-1 block w-full py-2 px-3 bg-transparent border-b border-gray-300 focus:border-indigo-500 focus:ring-0">
+                    <option value="fairy_tales">Fairy Tales</option>
+                    <option value="animals">Animals</option>
+                    <option value="fantasy">Fantasy</option>
+                    <option value="science_fiction">Science Fiction</option>
+                    <option value="mystery">Mystery</option>
+                    <option value="adventure">Adventure</option>
+                    <option value="sports">Sports</option>
+                    <option value="school">School</option>
+                </select>
+                <label for="story-category" class="block text-sm font-medium text-gray-700 text-center">Select story category</label>
+            </div>
+            <div>
+                <select id="story-topic" class="font-bold text-center mt-1 block w-full py-2 px-3 bg-transparent border-b border-gray-300 focus:border-indigo-500 focus:ring-0">
+                    <option value="friendship">Friendship</option>
+                    <option value="family">Family</option>
+                    <option value="magic">Magic</option>
+                    <option value="space">Space</option>
+                    <option value="nature">Nature</option>
+                    <option value="history">History</option>
+                    <option value="heroes">Heroes</option>
+                    <option value="holidays">Holidays</option>
+                    <option value="travel">Travel</option>
+                </select>
+                <label for="story-topic" class="block text-sm font-medium text-gray-700 text-center">Select story topic</label>
+            </div>
+            <div>
+                <select id="story-length" class="font-bold text-center mt-1 block w-full py-2 px-3 bg-transparent border-b border-gray-300 focus:border-indigo-500 focus:ring-0">
+                    <option value="short">Short (250 words)</option>
+                    <option value="medium">Medium (600 words)</option>
+                    <option value="long">Long (1000 words) </option>
+                </select>
+                <label for="story-length" class="block text-sm font-medium text-gray-700 text-center">Select story length</label>
+            </div>
+            <div>
+                <select id="sentences-per-paragraph" class="font-bold text-center mt-1 block w-full py-2 px-3 bg-transparent border-b border-gray-300 focus:border-indigo-500 focus:ring-0">
+                    <option value="1">1 sentence</option>
+                    <option value="2">2 sentences</option>
+                    <option value="3">3 sentences </option>
+                    <option value="4">4 sentences </option>
+                    <option value="5">5 sentences </option>
+                </select>
+                <label for="sentences-per-paragraph" class="block text-sm font-medium text-gray-700 text-center">Select number of sentences per paragraph</label>
+            </div>
+            <div>
+                <select id="sentence-length" class="font-bold text-center mt-1 block w-full py-2 px-3 bg-transparent border-b border-gray-300 focus:border-indigo-500 focus:ring-0">
+                    <option value="short">Short</option>
+                    <option value="medium">Medium</option>
+                    <option value="long">Long</option>
+                </select>
+                <label for="sentence-length" class="block text-sm font-medium text-gray-700 text-center">Select length of sentences</label>
+            </div>
+            <div>
+                <div class="quantity-input">
+                    <button type="button" id="minus-button" class="bg-gray-300 font-bold text-lg">-</button>
+                    <input type="number" id="num-children" required="" min="1" max="10" class="font-bold bg-transparent">
+                    <button type="button" id="plus-button" class="bg-gray-300 font-bold text-lg">+</button>
+                </div>
+                <label for="num-children" class="block text-sm font-medium text-gray-700 text-center">Number of children</label>
+            </div>
+            <div id="children-inputs"></div>
+            <button type="submit" class="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 w-full border-b-4 border-blue-700 hover:border-blue-500 rounded">Generate a Fun Story!</button>
+        </form>
+        <div id="spinner" class="spinner hidden my-8 mx-auto"></div>
+        <div id="story-image" class="my-8 px-4"></div>
+        <div id="output" class="my-2 text-xl"></div>
+        <div id="title-output" class="my-2 text-2xl font-bold"></div>
+        <div id="paragraphs-output" class="my-2 text-xl"></div>
+    </div>
+    <div class="text-center px-4" id="buttons">
+    <button id="copy-button" class="bg-green-500 hover:bg-green-400 w-half text-white font-bold py-2 px-4 border-b-4 border-green-700 hover:border-green-500 rounded hidden mr-2">Copy Story</button>
+    <button id="reset-button" class="bg-red-500 hover:bg-red-400 w-half text-white font-bold py-2 px-4 border-b-4 border-red-700 hover:border-red-500 rounded hidden">Reset Story</button>
+</div>
+    <footer class="text-center mt-16">
+        <!-- footer content -->
+    </footer>
+    <script>
+        function generateImage(prompt) {
+            return new Promise((resolve, reject) => {
+                $.ajax({
+                    url: "https://backend.buildpicoapps.com/aero/run/image-generation-api?pk=v1-Z0FBQUFBQm5zaUV2TVhwMW9rOGR1QWJvVG83VDJLbmpMV1E3MWV0dkxGUVpDVDNzX2ZsY0QyV3RjSm5vaTgxanNGUjZsTlljMXlZLXVtNXdHYl9RQ2JxdzU0aGtrUDFHUXc9PQ==",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({ prompt: prompt }),
+                    success: function(response) {
+                        if (response.status === "success") {
+                            resolve(response.imageUrl);
+                        } else {
+                            reject("Error generating image");
+                        }
+                    },
+                    error: function(error) {
+                        console.log("Error:", error);
+                        reject("Error generating image");
+                    }
+                });
+            });
+        }
+
+        function showImage(elementId, imgUrl) {
+            const image = new Image();
+            image.src = imgUrl;
+            image.style.maxWidth = "100%";
+            image.style.borderRadius = "8px";
+            document.getElementById(elementId).appendChild(image);
+        }
+
+        function removeImage(elementId) {
+            const imageDiv = document.getElementById(elementId);
+            while (imageDiv.firstChild) {
+                imageDiv.removeChild(imageDiv.firstChild);
+            }
+        }
+
+            function generateTitleImage(title, category, topic, childDataString) {
+            const titlePrompt = `Create a cute and heartwarming illustration image for the story titled: ${title}. For these characters: ${childDataString},`;
+            showSpinner();
+            generateImage(titlePrompt)
+                .then((imgUrl) => {
+                    removeImage("story-image");
+                    const imageWrapper = document.createElement("div");
+                    imageWrapper.style.position = "relative";
+                    imageWrapper.style.display = "inline-block";
+                    const refreshIcon = document.createElement("button");
+                    refreshIcon.style.position = "absolute";
+                    refreshIcon.style.bottom = "10px";
+                    refreshIcon.style.right = "10px";
+                    refreshIcon.style.cursor = "pointer";
+                    refreshIcon.style.backgroundColor = "white";
+                    refreshIcon.style.color = "black";
+                    refreshIcon.style.border = "none";
+                    refreshIcon.style.borderRadius = "50%";
+                    refreshIcon.style.width = "30px";
+                    refreshIcon.style.height = "30px";
+                    refreshIcon.innerHTML = "&#x21BB;"; // Unicode for refresh icon
+                    refreshIcon.title = "Regenerate Image";
+                    refreshIcon.addEventListener("click", function() {
+                        generateTitleImage(title, category, topic, childDataString);
+                    });
+                    const image = new Image();
+                    image.src = imgUrl;
+                    image.style.maxWidth = "100%";
+                    image.style.borderRadius = "8px";
+                    imageWrapper.appendChild(image);
+                    imageWrapper.appendChild(refreshIcon);
+                    document.getElementById("story-image").appendChild(imageWrapper);
+                    hideSpinner();
+                })
+                .catch((error) => {
+                    console.log(error);
+                    alert("Error generating image for title. Please try again.");
+                    hideSpinner();
+                });
+        }
+
+        function showSpinner() {
+            $("#spinner").removeClass("hidden");
+        }
+
+        function hideSpinner() {
+            $("#spinner").addClass("hidden");
+        }
+
+    function addParagraphImageIcons(childDataString) {
+    // Get the title text
+    const titleText = $("#output h1").text();
+    const titleOutput = $("#title-output");
+    titleOutput.text(titleText); // Set the title text
+
+    // Create a new container for individual paragraphs
+    const paragraphsOutput = $("#paragraphs-output");
+    paragraphsOutput.empty(); // Clear the previous paragraphs content
+      
+    // Process each paragraph individually and add a container for each
+    $("#output p").each(function () {
+        const paragraphText = $(this).text();
+        const paragraphContainer = $("<div>", {
+            class: "paragraph-container"
+        });
+
+        const paragraph = $("<p>", {
+            text: paragraphText
+        });
+
+        const generateButton = $("<span>", {
+            class: "generate-image-icon",
+            html: "&#x1F5BC;",
+            title: "Generate image for paragraph"
+        });
+
+        generateButton.on("click", function () {
+    const spinner = $(this).siblings('.spinner');
+    const existingImage = paragraphContainer.find('img');
+    
+    // Remove the existing image, if any
+    existingImage.remove();
+
+    // Show the spinner
+    spinner.removeClass('hidden');
+
+    const category = $("#story-category").val();
+    const topic = $("#story-topic").val();
+    const prompt = `Create a cute and heartwarming illustration image for this paragraph: ${paragraphText}. about characters: ${childDataString},`;
+    showSpinner();
+    generateImage(prompt)
+        .then((imageUrl) => {
+            const image = new Image();
+            image.src = imageUrl;
+            image.style.width = "100%";
+            image.style.borderRadius = "8px";
+            paragraphContainer.append(image); // Add image below the paragraph
+            spinner.addClass('hidden'); // Hide the spinner after the image is loaded
+            hideSpinner();
+        })
+        .catch((error) => {
+            console.log(error);
+            alert("Error generating image for paragraph. Please try again.");
+            spinner.addClass('hidden'); // Hide the spinner if there's an error
+            hideSpinner();
+        });
+});
+
+
+        paragraphContainer.append(paragraph);
+        paragraphContainer.append(generateButton);
+        paragraphsOutput.append(paragraphContainer); // Add the paragraph container to the new output container
+    });
+
+    // Remove the original output container after processing paragraphs
+    $("#output").remove();
+}
+
+       $(document).ready(function() {
+            const savedForm = JSON.parse(localStorage.getItem('form'));
+            if (savedForm) {
+                $("#story-category").val(savedForm.category);
+                $("#story-topic").val(savedForm.topic);
+                $("#num-children").val(savedForm.numChildren).trigger('input');
+                $("#story-length").val(savedForm.storyLength);
+
+                savedForm.childData.forEach((child, index) => {
+                    setTimeout(() => {
+                        $(`.child-name:eq(${index})`).val(child.name);
+                        $(`.child-age:eq(${index})`).val(child.age);
+                        $(`.child-gender:eq(${index})`).val(child.gender);
+                    }, 100);
+                });
+
+                $("#output").html(savedForm.output.replace(/\n/g, '<br/>'));
+                if (savedForm.output) {
+                    $("#buttons").removeClass("hidden");
+                    $("#copy-button, #reset-button").removeClass("hidden");
+                }
+            } else {
+                // Prefill values if the form is not saved in local storage
+                $("#num-children").val(2).trigger('input');
+                $(".child-name:eq(0)").val("Raia");
+                $(".child-gender:eq(0)").val("female");
+                $(".child-age:eq(0)").val(3);
+                $(".child-hair-color:eq(0)").val("black");
+                $(".child-skin-tone:eq(0)").val("brown");
+                $(".child-eye-color:eq(0)").val("gray");
+                $(".child-name:eq(1)").val("Lorenzo");
+                $(".child-gender:eq(1)").val("male");
+                $(".child-age:eq(1)").val(5);
+                $(".child-hair-color:eq(1)").val("blonde");
+                $(".child-skin-tone:eq(1)").val("light");
+                $(".child-eye-color:eq(1)").val("green");
+            }
+
+             $("#plus-button").on("click", function() {
+                const currentValue = parseInt($("#num-children").val(), 10);
+                if (currentValue < 10) {
+                    $("#num-children").val(currentValue + 1).trigger("input");
+                }
+            });
+
+            $("#minus-button").on("click", function() {
+                const currentValue = parseInt($("#num-children").val(), 10);
+                if (currentValue > 1) {
+                    $("#num-children").val(currentValue - 1).trigger("input");
+                }
+            });
+        });
+
+        $("#num-children").on("input", function() {
+            const numChildren = $("#num-children").val();
+            const childrenInputs = $("#children-inputs");
+            childrenInputs.empty();
+            const ordinalNumbers = ["First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth", "Ninth", "Tenth"];
+
+            for (let i = 0; i < numChildren; i++) {
+                const childInput = `
+                    <div class="child-container border-b-4 border-green-500">
+    <div class="space-y-4">
+        <div>
+            <input type="text" class="child-name mt-1 block w-full py-2 px-3 bg-transparent border-b border-gray-300 focus:border-indigo-500 focus:ring-0" placeholder="${ordinalNumbers[i]} Child's Name" required>
+        </div>
+        <div class="flex justify-between">
+            <div class="w-1/3 pr-1">
+                <select class="child-hair-color mt-1 block w-full py-2 px-3 bg-transparent border-b border-gray-300 focus:border-indigo-500 focus:ring-0" required>
+                    <option value="brown">Brown Hair</option>
+                    <option value="blonde">Blonde Hair</option>
+                    <option value="black">Black Hair</option>
+                    <option value="red">Red Hair</option>
+                    <option value="gray">Gray Hair</option>
+                    <!-- Add more hair color options here -->
+                </select>
+            </div>
+            <div class="w-1/3 px-1">
+                <select class="child-eye-color mt-1 block w-full py-2 px-3 bg-transparent border-b border-gray-300 focus:border-indigo-500 focus:ring-0" required>
+                    <option value="blue">Blue Eyes</option>
+                    <option value="brown">Brown Eyes</option>
+                    <option value="green">Green Eyes</option>
+                    <option value="hazel">Hazel Eyes</option>
+                    <option value="gray">Gray Eyes</option>
+                    <!-- Add more eye color options here -->
+                </select>
+            </div>
+            <div class="w-1/3 pl-1">
+                <select class="child-skin-tone mt-1 block w-full py-2 px-3 bg-transparent border-b border-gray-300 focus:border-indigo-500 focus:ring-0" required>
+                    <option value="light">Light Skin</option>
+                    <option value="fair">Fair Skin</option>
+                    <option value="medium">Medium Skin</option>
+                    <option value="olive">Olive Skin</option>
+                    <option value="brown">Brown Skin</option>
+                    <option value="dark">Dark Skin</option>
+                    <!-- Add more skin tone options here -->
+                </select>
+            </div>
+        </div>
+        <div class="flex justify-between">
+            <div class="w-1/2 pr-1">
+                <input type="number" class="child-age mt-1 block w-full py-2 px-3 bg-transparent border-b border-gray-300 focus:border-indigo-500 focus:ring-0" placeholder="Age" required>
+            </div>
+            <div class="w-1/2 pl-1">
+                <select class="child-gender mt-1 block w-full py-2 px-3 bg-transparent border-b border-gray-300 focus:border-indigo-500 focus:ring-0" required>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+                `;
+                childrenInputs.append(childInput);
+            }
+        });
+
+        $("#story-form").submit(function(event) {
+            event.preventDefault();
+
+            const numChildren = $("#num-children").val();
+            const category = $("#story-category").val();
+            const topic = $("#story-topic").val();
+            const storyLength = $("#story-length").val();
+            const sentencesPerParagraph = $("#sentences-per-paragraph").val();
+            const sentenceLength = $("#sentence-length").val();
+            const output = $("#output");
+            output.empty();
+
+            const childData = Array.from({ length: numChildren }, (_, i) => ({
+            name: $(`.child-name:eq(${i})`).val(),
+            hairColor: $(`.child-hair-color:eq(${i})`).val(),
+            skinTone: $(`.child-skin-tone:eq(${i})`).val(),
+            eyeColor: $(`.child-eye-color:eq(${i})`).val(),
+            age: $(`.child-age:eq(${i})`).val(),
+            gender: $(`.child-gender:eq(${i})`).val()
+        }));
+            const childDataString = childData.map(child => {
+            const { name, age, gender, hairColor, eyeColor, skinTone } = child;
+            return `${name} (${age} years old, ${gender}, Hair: ${hairColor}, Eyes: ${eyeColor}, Skin: ${skinTone})`;
+        }).join(', ');
+
+            const substitutedPrompt = `Create a ${storyLength} personalised ${category} story about ${topic}, including the following children: ${childDataString}. Story must have ${sentencesPerParagraph} sentences per paragraph and make the sentences ${sentenceLength}. Only show me the Title of the story and the Story. Respond in HTML using <p> for paragraphs.`;
+
+            const ws = new WebSocket(`wss://backend.buildpicoapps.com/ask_ai_streaming?app_id=fear-between&prompt=${encodeURIComponent(substitutedPrompt)}`);
+
+            let newHtml = "";
+            ws.addEventListener("message", (event) => {
+                console.log(event.data)
+                newHtml += event.data;
+               output.html(newHtml);
+              console.log(newHtml);
+            });
+
+            ws.addEventListener("close", (event) => {
+               console.log("CLOOSE");
+                console.log("Connection closed", event.code, event.reason);
+                console.log(newHtml);
+                output.html(newHtml);
+                if (event.code != 1000) {
+                    alert("Oops, we ran into an error. Refresh the page and try again.");
+                } else {
+                    const category = $("#story-category").val().replace("_", " ");
+                    const topic = $("#story-topic").val().replace("_", " ");
+                    $("#copy-button, #reset-button").removeClass("hidden");
+                    generateTitleImage($("#output h1").first().text(), category, topic, childDataString);
+                    addParagraphImageIcons(childDataString);
+                }
+            });
+
+            ws.addEventListener("error", (error) => {
+                console.log("WebSocket error", error);
+                alert("Oops, we ran into an error. Refresh the page and try again.");
+            });
+        });
+
+       $("#story-form").on("change", function() {
+            const numChildren = $("#num-children").val();
+            const category = $("#story-category").val();
+            const topic = $("#story-topic").val();
+            const storyLength = $("#story-length").val();
+            const sentencesPerParagraph = $("#sentences-per-paragraph").val();
+            const sentenceLength = $("#sentence-length").val();
+            const output = $("#output").html().replace(/<br>/g, '\n');
+            const childData = [];
+
+            for (let i = 0; i < numChildren; i++) {
+                childData.push({
+                    name: $(`.child-name:eq(${i})`).val(),
+                    age: $(`.child-age:eq(${i})`).val(),
+                    gender: $(`.child-gender:eq(${i})`).val()
+                });
+            }
+
+            localStorage.setItem('form', JSON.stringify({
+                category: category,
+                topic: topic,
+                numChildren: numChildren,
+                storyLength: storyLength,
+                sentencesPerParagraph: sentencesPerParagraph,
+                sentenceLength: sentenceLength,
+                childData: childData,
+                output: output
+            }));
+        });
+
+        $("#copy-button").click(function() {
+            const output = $("#output");
+            const tempTextArea = $("<textarea>");
+            $("body").append(tempTextArea);
+            tempTextArea.val(output.text()).select();
+            document.execCommand("copy");
+            tempTextArea.remove();
+            alert("Story copied to clipboard!");
+        });
+
+        $("#reset-button").click(function() {
+            $("#story-form")[0].reset();
+            $("#output").empty();
+            $("#copy-button, #reset-button").addClass("hidden");
+            localStorage.removeItem('form');
+            $("#num-children").val(1).trigger("input");
+        });
+    </script>
+<script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="Sajkhan" data-description="Support me on Buy me a coffee!" data-message="" data-color="#FF813F" data-position="Right" data-x_margin="18" data-y_margin="18"></script>
+</body></html>
